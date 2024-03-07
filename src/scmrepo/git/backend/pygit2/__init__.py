@@ -212,6 +212,9 @@ class Pygit2Backend(BaseGitBackend):  # pylint:disable=abstract-method
     def committer(self) -> "Signature":
         return self._get_signature("GIT_COMMITTER")
 
+    def _get_proxy(self):
+        return os.environ.get("HTTPS_PROXY", None)
+
     def _get_signature(self, name: str) -> "Signature":
         from pygit2 import Signature
 
@@ -695,7 +698,7 @@ class Pygit2Backend(BaseGitBackend):  # pylint:disable=abstract-method
                     remote_refs: dict[str, "Oid"] = (
                         {
                             head["name"]: head["oid"]
-                            for head in remote.ls_remotes(callbacks=cb)
+                            for head in remote.ls_remotes(callbacks=cb, proxy=self._get_proxy())
                         }
                         if not force
                         else {}
